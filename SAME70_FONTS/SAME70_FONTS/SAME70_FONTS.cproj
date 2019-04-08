@@ -442,7 +442,6 @@
       <Value>BOARD=SAME70_XPLAINED</Value>
       <Value>scanf=iscanf</Value>
       <Value>ARM_MATH_CM7=true</Value>
-      <Value>printf=iprintf</Value>
       <Value>ILI9488_SPIMODE</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
