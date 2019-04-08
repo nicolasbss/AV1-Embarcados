@@ -11,8 +11,40 @@
 #include "calibri_36.h"
 #include "arial_72.h"
 
+#define BUT_PIO           PIOA
+#define BUT_PIO_ID        10
+#define BUT_PIO_IDX       11u
+#define BUT_PIO_IDX_MASK (1u << BUT_PIO_IDX)
+
+volatile int flag_button;
+
+volatile int pulse = 0;
+
+void BUT_init(void);
+void TC_init(Tc * TC, int ID_TC, int TC_CHANNEL, int freq);
+void RTC_init(void);
 
 struct ili9488_opt_t g_ili9488_display_opt;
+
+void Button_Handler(void){
+	flag_button = 1;
+}
+
+void pulse_add() {
+	pulse += 1;
+}
+
+void BUT_init(void){
+	
+	pmc_enable_periph_clk(BUT_PIO_ID);
+	pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
+	
+	pio_enable_interrupt(BUT_PIO, BUT_PIO_IDX_MASK);
+	pio_handler_set(BUT_PIO, BUT_PIO_ID, BUT_PIO_IDX_MASK, PIO_IT_FALL_EDGE, Button_Handler);
+
+	NVIC_EnableIRQ(BUT_PIO_ID);
+	NVIC_SetPriority(BUT_PIO_ID, 1);
+};
 
 void configure_lcd(void){
 	/* Initialize display parameter */
@@ -45,6 +77,7 @@ void font_draw_text(tFont *font, const char *text, int x, int y, int spacing) {
 
 int main(void) {
 	board_init();
+	BUT_init();
 	sysclk_init();	
 	configure_lcd();
 	
@@ -52,6 +85,9 @@ int main(void) {
 	font_draw_text(&calibri_36, "Oi Mundo! #$!@", 50, 100, 1);
 	font_draw_text(&arial_72, "102456", 50, 200, 2);
 	while(1) {
-		
+		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
+		if (flag_button){
+			pulse_add();
+		}
 	}
 }
