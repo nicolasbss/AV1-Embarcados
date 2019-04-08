@@ -312,6 +312,6 @@ int main(void) {
 		}
 		
 		
-		//pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
+		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
 }
